@@ -6,15 +6,14 @@ const redirectUrl = "https://5mingourmet.com/collections/meals";
 window.addEventListener("DOMContentLoaded", () => {
   console.log("ZIP script loaded successfully.");
 
-  const form = document.querySelector("form");
-  if (!form) {
-    console.warn("Form not found.");
+  const button = document.querySelector('[data-cy="form-submit-button"]');
+  if (!button) {
+    console.warn("Submit button not found.");
     return;
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    console.log("Form submit intercepted.");
+  button.addEventListener("click", async (e) => {
+    console.log("Button click intercepted.");
 
     const inputs = document.querySelectorAll("input");
     let zip = "";
@@ -51,5 +50,7 @@ window.addEventListener("DOMContentLoaded", () => {
       console.error("ZIP validation error:", err);
       alert("We couldn’t validate your ZIP. Please try again.");
     }
+
+    e.preventDefault(); // Stop GHL from doing anything if ZIP check fails
   });
 });
