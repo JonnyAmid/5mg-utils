@@ -1,12 +1,24 @@
-// zip-check.js – hosted externally to bypass GHL CSP
+console.log("ZIP script loaded manually.");
 
-document.addEventListener("DOMContentLoaded", () => {
-  const blockedStates = ["WA", "OR", "NV", "UT", "ID", "MT", "ME", "AK", "HI"];
-  const redirectUrl = "https://5mingourmet.com/collections/meals";
+// States we don’t deliver to
+const blockedStates = ["WA", "OR", "NV", "UT", "ID", "MT", "ME", "AK", "HI"];
+const redirectUrl = "https://5mingourmet.com/collections/meals";
 
-  document.addEventListener("click", async (e) => {
-    const btn = e.target.closest("button, a, .button, .btn, .your-custom-class");
-    if (!btn || !btn.textContent.includes("Pick Your Meals")) return;
+// Wait for DOM content
+window.addEventListener("DOMContentLoaded", () => {
+  // Try to find the CTA "button" (actually a div) by visible text
+  const divs = Array.from(document.querySelectorAll("div"));
+  const ctaBtn = divs.find((el) => el.textContent.trim().toLowerCase() === "pick your meals");
+
+  if (!ctaBtn) {
+    console.warn("CTA button not found.");
+    return;
+  }
+
+  console.log("CTA button found. Attaching ZIP handler.");
+
+  ctaBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
 
     const inputs = document.querySelectorAll("input");
     let zip = "";
@@ -18,11 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!zip) {
       alert("Please enter a valid 5-digit ZIP code.");
-      e.preventDefault();
       return;
     }
-
-    e.preventDefault();
 
     try {
       const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -30,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
       const state = data.places?.[0]?.["state abbreviation"];
-
       if (!state) throw new Error("No state found");
 
       if (blockedStates.includes(state)) {
