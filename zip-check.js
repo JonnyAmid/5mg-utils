@@ -3,14 +3,11 @@ console.log("Injecting ZIP script manually...");
 const blockedStates = ["WA", "OR", "NV", "UT", "ID", "MT", "ME", "AK", "HI"];
 const redirectUrl = "https://5mingourmet.com/collections/meals";
 
-window.addEventListener("DOMContentLoaded", () => {
-  console.log("ZIP script loaded successfully.");
+function bindButtonHandler(button) {
+  if (button.dataset.zipbound) return; // prevent duplicate bindings
+  button.dataset.zipbound = "true";
 
-  const button = document.querySelector('[data-cy="form-submit-button"]');
-  if (!button) {
-    console.warn("Submit button not found.");
-    return;
-  }
+  console.log("Bound click handler to button");
 
   button.addEventListener("click", async (e) => {
     console.log("Button click intercepted.");
@@ -26,6 +23,7 @@ window.addEventListener("DOMContentLoaded", () => {
     console.log("ZIP detected:", zip);
     if (!zip) {
       alert("Please enter a valid 5-digit ZIP code.");
+      e.preventDefault();
       return;
     }
 
@@ -40,6 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (blockedStates.includes(state)) {
         alert(`Sorry, we don't deliver to ${state}.`);
+        e.preventDefault();
         return;
       }
 
@@ -49,8 +48,24 @@ window.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("ZIP validation error:", err);
       alert("We couldn’t validate your ZIP. Please try again.");
+      e.preventDefault();
     }
-
-    e.preventDefault(); // Stop GHL from doing anything if ZIP check fails
   });
+}
+
+function observeButton() {
+  const observer = new MutationObserver(() => {
+    const button = document.querySelector('[data-cy="form-submit-button"]');
+    if (button) bindButtonHandler(button);
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  console.log("ZIP script loaded successfully.");
+  observeButton();
 });
