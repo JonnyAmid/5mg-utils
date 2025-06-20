@@ -1,23 +1,20 @@
-console.log("ZIP script loaded manually.");
+console.log("Injecting ZIP script manually...");
 
-// States we don’t deliver to
+// List of blocked state abbreviations
 const blockedStates = ["WA", "OR", "NV", "UT", "ID", "MT", "ME", "AK", "HI"];
 const redirectUrl = "https://5mingourmet.com/collections/meals";
 
-// Wait for DOM content
 window.addEventListener("DOMContentLoaded", () => {
-  // Try to find the CTA "button" (actually a div) by visible text
-  const divs = Array.from(document.querySelectorAll("div"));
-  const ctaBtn = divs.find((el) => el.textContent.trim().toLowerCase() === "pick your meals");
+  console.log("ZIP script loaded successfully.");
 
-  if (!ctaBtn) {
-    console.warn("CTA button not found.");
+  // Grab the first visible form on the page
+  const form = document.querySelector("form");
+  if (!form) {
+    console.warn("Form not found.");
     return;
   }
 
-  console.log("CTA button found. Attaching ZIP handler.");
-
-  ctaBtn.addEventListener("click", async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const inputs = document.querySelectorAll("input");
@@ -43,11 +40,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (blockedStates.includes(state)) {
         alert(`Sorry, we don't deliver to ${state}.`);
-      } else {
-        window.location.href = redirectUrl;
+        return;
       }
+
+      // Success – redirect or allow normal submission
+      window.location.href = redirectUrl;
+
     } catch (err) {
-      console.error("ZIP error:", err);
+      console.error("ZIP validation error:", err);
       alert("We couldn’t validate your ZIP. Please try again.");
     }
   });
