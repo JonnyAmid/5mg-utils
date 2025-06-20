@@ -1,13 +1,11 @@
 console.log("Injecting ZIP script manually...");
 
-// List of blocked state abbreviations
 const blockedStates = ["WA", "OR", "NV", "UT", "ID", "MT", "ME", "AK", "HI"];
 const redirectUrl = "https://5mingourmet.com/collections/meals";
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("ZIP script loaded successfully.");
 
-  // Grab the first visible form on the page
   const form = document.querySelector("form");
   if (!form) {
     console.warn("Form not found.");
@@ -16,6 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    console.log("Form submit intercepted.");
 
     const inputs = document.querySelectorAll("input");
     let zip = "";
@@ -25,6 +24,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (/^\d{5}$/.test(val)) zip = val;
     });
 
+    console.log("ZIP detected:", zip);
     if (!zip) {
       alert("Please enter a valid 5-digit ZIP code.");
       return;
@@ -36,6 +36,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
       const state = data.places?.[0]?.["state abbreviation"];
+      console.log("State detected:", state);
       if (!state) throw new Error("No state found");
 
       if (blockedStates.includes(state)) {
@@ -43,7 +44,7 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Success – redirect or allow normal submission
+      console.log("Redirecting to:", redirectUrl);
       window.location.href = redirectUrl;
 
     } catch (err) {
